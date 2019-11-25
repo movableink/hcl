@@ -228,6 +228,12 @@ func (p *printer) literalType(lit *ast.LiteralType) []byte {
 		// Poison lines 2+ so that we don't indent them
 		result = p.heredocIndent(result)
 	case token.STRING:
+		// If the string token is using interpolation remove the interpolation
+		// leaving the bare variable
+		if bytes.HasPrefix(result, []byte("\"${")) {
+			result = result[3 : len(result)-2]
+		}
+
 		// If this is a multiline string, poison lines 2+ so we don't
 		// indent them.
 		if bytes.IndexRune(result, '\n') >= 0 {
